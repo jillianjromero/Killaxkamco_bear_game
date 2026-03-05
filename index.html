@@ -1,82 +1,498 @@
-<!DOCTYPE html>
-<html> 
+<!doctype html>
+<html lang="en">
 <head>
-<title>Dress the Bear</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Dress the Bear</title>
+  <style>
+    :root{
+      --max: 980px;
+      --card: rgba(255,255,255,.08);
+      --border: rgba(255,255,255,.14);
+      --text: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.70);
+      --radius: 18px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      background: radial-gradient(1200px 800px at 30% 15%, #222 0%, #0b0c10 55%, #050608 100%);
+      color: var(--text);
+    }
+    .wrap{max-width:var(--max); margin:0 auto; padding:22px;}
+    header{display:flex; gap:12px; align-items:flex-end; justify-content:space-between; margin-bottom:14px;}
+    h1{margin:0; font-size: clamp(22px, 3vw, 34px);}
+    .sub{margin:0; color:var(--muted); font-size:14px}
 
-<style>
+    .grid{
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap:16px;
+      align-items:start;
+    }
+    @media (max-width: 900px){
+      .grid{grid-template-columns:1fr; }
+    }
 
-body{
-font-family:Arial;
-text-align:center;
-background:#f5f5f5;
-}
+    .panel{
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px;
+      backdrop-filter: blur(8px);
+    }
 
-.bear-container{
-position:relative;
-width:300px;
-margin:40px auto;
-}
+    .stage{
+      display:grid;
+      grid-template-rows:auto 1fr auto;
+      gap:10px;
+      min-height: 640px;
+    }
+    .stageTop{
+      display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between;
+    }
+    .pill{
+      padding:8px 10px;
+      border:1px solid var(--border);
+      border-radius: 999px;
+      color: var(--muted);
+      font-size: 13px;
+    }
 
-.bear{
-width:100%;
-}
+    .bearArea{
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      padding: 10px;
+    }
 
-.clothes{
-position:absolute;
-top:0;
-left:0;
-width:100%;
-}
+    .bearStack{
+      position: relative;
+      width: min(420px, 78vw);
+      aspect-ratio: 3 / 4;
+      border-radius: 22px;
+      border: 1px dashed rgba(255,255,255,.18);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden;
+    }
 
-.clothing-options img{
-width:80px;
-cursor:pointer;
-margin:10px;
-}
+    .layer{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      object-fit: contain;
+      user-select:none;
+      pointer-events:none;
+    }
 
-button{
-margin-top:20px;
-padding:10px 20px;
-font-size:16px;
-cursor:pointer;
-}
+    .dropHint{
+      position:absolute;
+      bottom:12px;
+      left:12px;
+      right:12px;
+      text-align:center;
+      font-size: 13px;
+      color: var(--muted);
+      padding: 8px 10px;
+      border-radius: 999px;
+      background: rgba(0,0,0,.28);
+      border: 1px solid rgba(255,255,255,.10);
+    }
 
-</style>
+    .btnRow{display:flex; gap:10px; flex-wrap:wrap; justify-content:space-between; align-items:center;}
+    .btns{display:flex; gap:10px; flex-wrap:wrap;}
+    button, a.btn{
+      appearance:none;
+      border: 1px solid var(--border);
+      background: rgba(0,0,0,.25);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 12px;
+      cursor:pointer;
+      font-weight: 600;
+      text-decoration:none;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+    }
+    button:hover, a.btn:hover{ background: rgba(255,255,255,.08); }
+
+    .primary{
+      background: rgba(255,255,255,.14);
+      border-color: rgba(255,255,255,.22);
+    }
+
+    .closet{
+      display:grid;
+      gap:12px;
+    }
+    .tabs{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+    .tab{
+      font-weight:700;
+      font-size: 13px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(0,0,0,.20);
+      color: var(--muted);
+      cursor:pointer;
+    }
+    .tab.active{
+      color: var(--text);
+      background: rgba(255,255,255,.10);
+    }
+
+    .tray{
+      display:grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap:10px;
+    }
+    @media (max-width: 420px){
+      .tray{grid-template-columns: repeat(2, minmax(0, 1fr));}
+    }
+
+    .tile{
+      border-radius: 16px;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.20);
+      padding: 10px;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      min-height: 110px;
+      position:relative;
+      touch-action:none;
+    }
+    .tile small{color: var(--muted); font-weight:600}
+    .thumb{
+      width:100%;
+      aspect-ratio: 1/1;
+      border-radius: 12px;
+      background: rgba(255,255,255,.05);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden;
+    }
+    .thumb img{width:100%; height:100%; object-fit:contain; user-select:none; pointer-events:none;}
+    .dragBadge{
+      position:absolute;
+      top:10px;
+      right:10px;
+      font-size: 12px;
+      color: var(--muted);
+      padding: 6px 8px;
+      border-radius: 999px;
+      background: rgba(0,0,0,.35);
+      border:1px solid rgba(255,255,255,.10);
+    }
+
+    .ghost{
+      position: fixed;
+      z-index: 9999;
+      width: 120px;
+      height: 120px;
+      pointer-events:none;
+      opacity: .92;
+      transform: translate(-60px, -60px);
+      filter: drop-shadow(0 12px 24px rgba(0,0,0,.45));
+    }
+
+    @keyframes pop {
+      0% { transform: scale(0.98); opacity: .2; }
+      60% { transform: scale(1.02); opacity: 1; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .pop{ animation: pop 220ms ease-out; }
+
+    .overlay{
+      position:fixed; inset:0;
+      background: rgba(0,0,0,.55);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+      z-index:9998;
+    }
+    .overlay.show{display:flex;}
+    .modal{
+      max-width: 720px;
+      width: 100%;
+      background: rgba(15,16,20,.92);
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: 22px;
+      padding: 18px;
+    }
+    .modal h2{margin:0 0 8px;}
+    .modal p{margin:0 0 14px; color: var(--muted); line-height:1.4;}
+    .modalActions{display:flex; gap:10px; flex-wrap:wrap; justify-content:space-between; align-items:center;}
+    .check{
+      display:flex; gap:10px; align-items:center; color:var(--muted); font-size:14px;
+      user-select:none;
+    }
+    input[type="checkbox"]{ width:18px; height:18px; }
+  </style>
 </head>
-
 <body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>Dress the Bear 🐻</h1>
+        <p class="sub">Drag outfits onto the bear (or tap to try). When you’re done, enter the site.</p>
+      </div>
+      <div class="pill" id="statusPill">Tip: drag a tile onto the bear</div>
+    </header>
 
-<h1>Dress the Bear</h1>
+    <div class="grid">
+      <section class="panel stage">
+        <div class="stageTop">
+          <div class="pill">Drop zone: the bear box</div>
+          <div class="pill" id="outfitReadout">Wearing: nothing yet</div>
+        </div>
 
-<div class="bear-container">
+        <div class="bearArea">
+          <div class="bearStack" id="dropZone" aria-label="Bear drop zone">
+            <img class="layer" src="assets/bear-base.png" alt="Bear base" />
+            <img class="layer" id="layer-bottom" alt="Bottom layer" />
+            <img class="layer" id="layer-shoes"  alt="Shoes layer" />
+            <img class="layer" id="layer-top"    alt="Top layer" />
+            <img class="layer" id="layer-hat"    alt="Hat layer" />
+            <div class="dropHint" id="dropHint">Drop clothing here • Tap a tile to apply</div>
+          </div>
+        </div>
 
-<img src="https://i.imgur.com/2DhmtJ4.png" class="bear">
+        <div class="btnRow">
+          <div class="btns">
+            <button id="clearBtn">🧼 Clear</button>
+            <button id="randomBtn">🎲 Randomize</button>
+          </div>
+          <a class="btn primary" id="enterBtn" href="https://itinova.co/game">Enter website →</a>
+        </div>
+      </section>
 
-<img id="outfit" class="clothes">
+      <aside class="panel closet">
+        <div class="tabs" id="tabs"></div>
+        <div class="tray" id="tray"></div>
+        <p class="sub">Pro tip: Make clothing PNGs the same size as the bear artboard so they line up.</p>
+      </aside>
+    </div>
+  </div>
 
-</div>
+  <div class="overlay" id="overlay">
+    <div class="modal">
+      <h2>Welcome!</h2>
+      <p>Dress the bear, then hit <b>Enter website</b>. Drag clothes onto the bear (or tap a tile).</p>
+      <div class="modalActions">
+        <label class="check">
+          <input type="checkbox" id="skipNext" />
+          Don’t show this again
+        </label>
+        <button class="primary" id="startBtn">Let’s play 🐻</button>
+      </div>
+    </div>
+  </div>
 
-<div class="clothing-options">
+  <script>
+    const CLOTHES = {
+      hat: [
+        { name: "Hat 1", src: "assets/hat-1.png" },
+        { name: "Hat 2", src: "assets/hat-2.png" },
+      ],
+      top: [
+        { name: "Top 1", src: "assets/top-1.png" },
+        { name: "Top 2", src: "assets/top-2.png" },
+      ],
+      bottom: [
+        { name: "Bottom 1", src: "assets/bottom-1.png" },
+        { name: "Bottom 2", src: "assets/bottom-2.png" },
+      ],
+      shoes: [
+        { name: "Shoes 1", src: "assets/shoes-1.png" },
+        { name: "Shoes 2", src: "assets/shoes-2.png" },
+      ],
+    };
 
-<img src="https://i.imgur.com/G6X5Y3Y.png" onclick="dressBear(this.src)">
-<img src="https://i.imgur.com/q5Z4G3G.png" onclick="dressBear(this.src)">
-<img src="https://i.imgur.com/9K5p1sE.png" onclick="dressBear(this.src)">
+    const layerEl = {
+      hat: document.getElementById("layer-hat"),
+      top: document.getElementById("layer-top"),
+      bottom: document.getElementById("layer-bottom"),
+      shoes: document.getElementById("layer-shoes"),
+    };
 
-</div>
+    const dropZone = document.getElementById("dropZone");
+    const tray = document.getElementById("tray");
+    const tabs = document.getElementById("tabs");
+    const outfitReadout = document.getElementById("outfitReadout");
+    const statusPill = document.getElementById("statusPill");
+    const dropHint = document.getElementById("dropHint");
 
-<button onclick="enterSite()">Enter Website</button>
+    const clearBtn = document.getElementById("clearBtn");
+    const randomBtn = document.getElementById("randomBtn");
 
-<script>
+    const overlay = document.getElementById("overlay");
+    const startBtn = document.getElementById("startBtn");
+    const skipNext = document.getElementById("skipNext");
+    const SKIP_KEY = "bearGameSkipIntro";
 
-function dressBear(outfit){
-document.getElementById("outfit").src = outfit
-}
+    if (localStorage.getItem(SKIP_KEY) !== "1") overlay.classList.add("show");
 
-function enterSite(){
-window.location.href="https://google.com"
-}
+    startBtn.addEventListener("click", () => {
+      if (skipNext.checked) localStorage.setItem(SKIP_KEY, "1");
+      overlay.classList.remove("show");
+    });
 
-</script>
+    let activeCategory = "top";
+    const worn = { hat: null, top: null, bottom: null, shoes: null };
 
+    function updateReadout(){
+      const parts = [];
+      for (const k of ["hat","top","bottom","shoes"]) parts.push(`${k}: ${worn[k]?.name ?? "—"}`);
+      outfitReadout.textContent = "Wearing: " + parts.join(" • ");
+    }
+
+    function applyItem(category, item){
+      worn[category] = item;
+      const el = layerEl[category];
+      el.src = item.src;
+      el.classList.remove("pop");
+      void el.offsetWidth;
+      el.classList.add("pop");
+      updateReadout();
+      statusPill.textContent = `Applied: ${item.name}`;
+      dropHint.textContent = "Nice! Try another piece or hit Enter website →";
+    }
+
+    function clearAll(){
+      for (const k of Object.keys(worn)) {
+        worn[k] = null;
+        layerEl[k].src = "";
+      }
+      updateReadout();
+      statusPill.textContent = "Cleared";
+      dropHint.textContent = "Drop clothing here • Tap a tile to apply";
+    }
+
+    function randomize(){
+      for (const cat of Object.keys(CLOTHES)) {
+        const list = CLOTHES[cat];
+        if (!list.length) continue;
+        const pick = list[Math.floor(Math.random() * list.length)];
+        applyItem(cat, pick);
+      }
+      statusPill.textContent = "Random outfit applied 🎲";
+    }
+
+    clearBtn.addEventListener("click", clearAll);
+    randomBtn.addEventListener("click", randomize);
+
+    function renderTabs(){
+      tabs.innerHTML = "";
+      for (const cat of Object.keys(CLOTHES)) {
+        const b = document.createElement("button");
+        b.className = "tab" + (cat === activeCategory ? " active" : "");
+        b.textContent = cat.toUpperCase();
+        b.addEventListener("click", () => {
+          activeCategory = cat;
+          renderTabs();
+          renderTray();
+        });
+        tabs.appendChild(b);
+      }
+    }
+
+    function renderTray(){
+      tray.innerHTML = "";
+      const list = CLOTHES[activeCategory] || [];
+      list.forEach((item) => {
+        const tile = document.createElement("div");
+        tile.className = "tile";
+        tile.setAttribute("role", "button");
+        tile.setAttribute("tabindex", "0");
+        tile.addEventListener("click", () => applyItem(activeCategory, item));
+        tile.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" || e.key === " ") applyItem(activeCategory, item);
+        });
+
+        tile.innerHTML = `
+          <span class="dragBadge">drag</span>
+          <div class="thumb"><img src="${item.src}" alt="${item.name}"></div>
+          <small>${item.name}</small>
+        `;
+
+        tile.addEventListener("pointerdown", (e) => startDrag(e, activeCategory, item));
+        tray.appendChild(tile);
+      });
+    }
+
+    let ghost = null;
+    let dragging = null;
+
+    function startDrag(e, category, item){
+      if (e.pointerType === "mouse" && e.button !== 0) return;
+
+      dragging = { category, item };
+      e.currentTarget.setPointerCapture(e.pointerId);
+
+      ghost = document.createElement("img");
+      ghost.src = item.src;
+      ghost.className = "ghost";
+      document.body.appendChild(ghost);
+      moveGhost(e);
+
+      statusPill.textContent = "Drop it on the bear!";
+      dropZone.style.borderColor = "rgba(255,255,255,.35)";
+
+      window.addEventListener("pointermove", onMove, { passive: false });
+      window.addEventListener("pointerup", onUp, { passive: false });
+      window.addEventListener("pointercancel", onUp, { passive: false });
+    }
+
+    function moveGhost(e){
+      if (!ghost) return;
+      ghost.style.left = e.clientX + "px";
+      ghost.style.top  = e.clientY + "px";
+    }
+
+    function onMove(e){
+      e.preventDefault();
+      moveGhost(e);
+    }
+
+    function onUp(e){
+      e.preventDefault();
+
+      const dz = dropZone.getBoundingClientRect();
+      const inside =
+        e.clientX >= dz.left && e.clientX <= dz.right &&
+        e.clientY >= dz.top  && e.clientY <= dz.bottom;
+
+      if (inside && dragging) applyItem(dragging.category, dragging.item);
+      else statusPill.textContent = "Dropped outside (try again)";
+
+      cleanupDrag();
+    }
+
+    function cleanupDrag(){
+      dropZone.style.borderColor = "rgba(255,255,255,.18)";
+      dragging = null;
+      if (ghost) ghost.remove();
+      ghost = null;
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+      window.removeEventListener("pointercancel", onUp);
+    }
+
+    renderTabs();
+    renderTray();
+    updateReadout();
+  </script>
 </body>
 </html>
