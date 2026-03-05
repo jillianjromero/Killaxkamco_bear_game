@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Dress the Bear</title>
+
+<style>
+
+body{
+font-family:Arial;
+text-align:center;
+background:#f5f5f5;
+}
+
+.bear-container{
+position:relative;
+width:300px;
+margin:40px auto;
+}
+
+.bear{
+width:100%;
+}
+
+.clothes{
+position:absolute;
+top:0;
+left:0;
+width:100%;
+}
+
+.clothing-options img{
+width:80px;
+cursor:pointer;
+margin:10px;
+}
+
+button{
+margin-top:20px;
+padding:10px 20px;
+font-size:16px;
+cursor:pointer;
+}
+
+</style>
+</head>
+
+<body>
+
+<h1>Dress the Bear</h1>
+
+<div class="bear-container">
+
+<img src="https://i.imgur.com/2DhmtJ4.png" class="bear">
+
+<img id="outfit" class="clothes">
+
+</div>
+
+<div class="clothing-options">
+
+<img src="https://i.imgur.com/G6X5Y3Y.png" onclick="dressBear(this.src)">
+<img src="https://i.imgur.com/q5Z4G3G.png" onclick="dressBear(this.src)">
+<img src="https://i.imgur.com/9K5p1sE.png" onclick="dressBear(this.src)">
+
+</div>
+
+<button onclick="enterSite()">Enter Website</button>
+
+<script>
+
+function dressBear(outfit){
+document.getElementById("outfit").src = outfit
+}
+
+function enterSite(){
+window.location.href="https://google.com"
+}
+
+</script>
+
+</body>
+</html>
